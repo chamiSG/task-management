@@ -1,4 +1,3 @@
-/** Task status values matching backend enum. */
 export type TaskStatus = 'todo' | 'in_progress' | 'done'
 
 export interface Task {
@@ -9,6 +8,19 @@ export interface Task {
   owner_id: string
   created_at: string
   updated_at: string
+}
+
+export interface TaskCreatePayload {
+  title: string
+  description?: string | null
+  status?: TaskStatus
+  owner_id: string
+}
+
+export interface TaskUpdatePayload {
+  title?: string
+  description?: string | null
+  status?: TaskStatus
 }
 
 export interface TaskListResponse {

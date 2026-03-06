@@ -1,5 +1,5 @@
 import { apiRequest } from '@/lib/api'
-import type { Task, TaskListResponse } from '@/types'
+import type { Task, TaskListResponse, TaskCreatePayload, TaskUpdatePayload } from '@/types'
 
 const BASE = '/api/v1/tasks'
 
@@ -34,6 +34,33 @@ export async function fetchTasks(params?: FetchTasksParams): Promise<TaskListRes
 
 export async function fetchTask(id: string): Promise<Task> {
   const raw = await apiRequest<Task & { _id?: string }>(`${BASE}/${id}`)
+  return {
+    ...raw,
+    id: raw.id ?? raw._id ?? id,
+  }
+}
+
+export async function createTask(payload: TaskCreatePayload): Promise<Task> {
+  const raw = await apiRequest<Task & { _id?: string }>(BASE, {
+    method: 'POST',
+    body: JSON.stringify({
+      title: payload.title,
+      description: payload.description ?? null,
+      status: payload.status ?? 'todo',
+      owner_id: payload.owner_id,
+    }),
+  })
+  return {
+    ...raw,
+    id: raw.id ?? raw._id ?? '',
+  }
+}
+
+export async function updateTask(id: string, payload: TaskUpdatePayload): Promise<Task> {
+  const raw = await apiRequest<Task & { _id?: string }>(`${BASE}/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
   return {
     ...raw,
     id: raw.id ?? raw._id ?? id,
