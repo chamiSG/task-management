@@ -23,11 +23,14 @@ class TaskService:
     It should contain no transport / HTTP-specific concerns.
     """
 
-    # Allowed status transitions for business rules.
+    # Allowed status transitions for business rules:
+    # - todo -> in_progress
+    # - in_progress -> done
+    # Once a task is done, its status cannot change further.
     _ALLOWED_STATUS_TRANSITIONS: dict[TaskStatus, set[TaskStatus]] = {
-        TaskStatus.TODO: {TaskStatus.IN_PROGRESS, TaskStatus.DONE},
-        TaskStatus.IN_PROGRESS: {TaskStatus.TODO, TaskStatus.DONE},
-        TaskStatus.DONE: {TaskStatus.IN_PROGRESS},
+        TaskStatus.TODO: {TaskStatus.IN_PROGRESS},
+        TaskStatus.IN_PROGRESS: {TaskStatus.DONE},
+        TaskStatus.DONE: set(),
     }
 
     def __init__(self, repository: TaskRepository) -> None:
