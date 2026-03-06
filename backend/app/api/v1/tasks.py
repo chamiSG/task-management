@@ -7,7 +7,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.dependencies import DatabaseDep
+from app.dependencies import CurrentUserDep, DatabaseDep
 from app.models import TaskCreate, TaskListResponse, TaskResponse, TaskStatus, TaskUpdate
 from app.repositories import TaskRepository
 from app.services import (
@@ -42,6 +42,7 @@ def get_task_service(db: DatabaseDep) -> TaskService:
 )
 async def create_task(
     payload: TaskCreate,
+    current_user: CurrentUserDep,
     service: TaskService = Depends(get_task_service),
 ) -> TaskResponse:
     """
@@ -109,6 +110,7 @@ async def get_task(
 async def update_task(
     task_id: UUID,
     payload: TaskUpdate,
+    current_user: CurrentUserDep,
     service: TaskService = Depends(get_task_service),
 ) -> TaskResponse:
     """
@@ -135,6 +137,7 @@ async def update_task(
 )
 async def delete_task(
     task_id: UUID,
+    current_user: CurrentUserDep,
     service: TaskService = Depends(get_task_service),
 ) -> None:
     """

@@ -37,6 +37,7 @@ class MongoDBConnectionManager:
             minPoolSize=self._settings.mongodb_min_pool_size,
             maxIdleTimeMS=self._settings.mongodb_max_idle_time_ms,
             serverSelectionTimeoutMS=self._settings.mongodb_server_selection_timeout_ms,
+            uuidRepresentation="standard",
         )
         self._database = self._client[self._settings.mongodb_database_name]
 

@@ -29,6 +29,33 @@ class Settings(BaseSettings):
     # API
     api_v1_prefix: str = Field(default="/api/v1", description="API v1 URL prefix")
 
+    # Auth / JWT
+    jwt_secret_key: str = Field(
+        default="change-me-in-production-please-change-me",
+        min_length=32,
+        description="Secret key for signing JWT tokens",
+    )
+    jwt_algorithm: str = Field(
+        default="HS256",
+        description="JWT signing algorithm",
+    )
+    access_token_expires_minutes: int = Field(
+        default=60,
+        ge=1,
+        le=60 * 24 * 7,
+        description="Access token lifetime in minutes",
+    )
+
+    # Demo user credentials (for development only)
+    demo_username: str = Field(
+        default="admin",
+        description="Demo username for simple authentication.",
+    )
+    demo_password: str = Field(
+        default="admin",
+        description="Demo plaintext password for simple authentication.",
+    )
+
     # MongoDB (Motor)
     mongodb_url: Optional[str] = Field(
         default="mongodb://localhost:27017",
