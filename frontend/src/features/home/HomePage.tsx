@@ -7,8 +7,7 @@ export function HomePage() {
     <>
       <Title level={2}>Welcome</Title>
       <Paragraph>
-        React + TypeScript frontend with Vite, Ant Design, React Query, and React Router.
-        Use the scalable folder structure under <code>src/</code> to add features.
+        Manage your tasks in one place. Create, update, and track progress from the Tasks page.
       </Paragraph>
     </>
   )
