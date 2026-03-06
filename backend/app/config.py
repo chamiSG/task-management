@@ -29,8 +29,37 @@ class Settings(BaseSettings):
     # API
     api_v1_prefix: str = Field(default="/api/v1", description="API v1 URL prefix")
 
-    # Optional: Database (placeholder for future use)
-    database_url: Optional[str] = Field(default=None, description="Database connection URL")
+    # MongoDB (Motor)
+    mongodb_url: Optional[str] = Field(
+        default="mongodb://localhost:27017",
+        description="MongoDB connection URL",
+    )
+    mongodb_database_name: str = Field(
+        default="tasks_management",
+        description="Default database name",
+    )
+    mongodb_min_pool_size: int = Field(
+        default=10,
+        ge=1,
+        le=1000,
+        description="Minimum connections in the pool",
+    )
+    mongodb_max_pool_size: int = Field(
+        default=100,
+        ge=1,
+        le=1000,
+        description="Maximum connections in the pool",
+    )
+    mongodb_max_idle_time_ms: int = Field(
+        default=30000,
+        ge=0,
+        description="Max idle time for a connection in the pool (ms)",
+    )
+    mongodb_server_selection_timeout_ms: int = Field(
+        default=5000,
+        ge=0,
+        description="Timeout for server selection (ms)",
+    )
 
 
 @lru_cache

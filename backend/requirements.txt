@@ -8,3 +8,7 @@ pydantic-settings>=2.0.0
 
 # Optional: load .env in development
 python-dotenv>=1.0.0
+
+# MongoDB async driver
+motor>=3.6.0
+pymongo>=4.0.0

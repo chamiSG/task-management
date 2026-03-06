@@ -13,9 +13,26 @@ from app.config import get_settings
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: startup and shutdown hooks."""
-    # Startup
+    from app.db.mongodb import MongoDBConnectionManager
+
+    settings = get_settings()
+    mongodb = MongoDBConnectionManager(settings)
+
+    if settings.mongodb_url:
+        await mongodb.connect()
+        app.state.mongodb_client = mongodb.client
+        app.state.mongodb_db = mongodb.database
+    else:
+        app.state.mongodb_client = None
+        app.state.mongodb_db = None
+
     yield
-    # Shutdown (cleanup if needed)
+
+    await mongodb.close()
+    if hasattr(app.state, "mongodb_client"):
+        app.state.mongodb_client = None
+    if hasattr(app.state, "mongodb_db"):
+        app.state.mongodb_db = None
 
 
 def create_application() -> FastAPI:
