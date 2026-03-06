@@ -1,18 +1,33 @@
 import { Layout, Menu } from 'antd'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { HomeOutlined, UnorderedListOutlined } from '@ant-design/icons'
+import { HomeOutlined, LoginOutlined, LogoutOutlined, UnorderedListOutlined } from '@ant-design/icons'
 import { ROUTES } from '@/lib/constants'
+import { useAuth } from '@/app/auth'
 
 const { Header, Content } = Layout
 
-const navItems = [
-  { key: ROUTES.HOME, icon: <HomeOutlined />, label: <Link to={ROUTES.HOME}>Home</Link> },
-  { key: ROUTES.TASKS, icon: <UnorderedListOutlined />, label: <Link to={ROUTES.TASKS}>Tasks</Link> },
-]
-
 export function AppLayout() {
   const { pathname } = useLocation()
+  const { isAuthenticated, username, logout } = useAuth()
   const selected = pathname === ROUTES.HOME ? ROUTES.HOME : pathname
+
+  const navItems = [
+    { key: ROUTES.HOME, icon: <HomeOutlined />, label: <Link to={ROUTES.HOME}>Home</Link> },
+    { key: ROUTES.TASKS, icon: <UnorderedListOutlined />, label: <Link to={ROUTES.TASKS}>Tasks</Link> },
+    ...(isAuthenticated
+      ? [
+          {
+            key: 'logout',
+            icon: <LogoutOutlined />,
+            label: (
+              <span onClick={logout} style={{ cursor: 'pointer' }}>
+                Logout {username ? `(${username})` : ''}
+              </span>
+            ),
+          },
+        ]
+      : [{ key: ROUTES.LOGIN, icon: <LoginOutlined />, label: <Link to={ROUTES.LOGIN}>Login</Link> }]),
+  ]
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
