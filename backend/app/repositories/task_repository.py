@@ -13,9 +13,6 @@ from app.models import TaskCreate, TaskResponse, TaskStatus, TaskUpdate
 class TaskRepository:
     """
     Repository layer for task persistence using MongoDB (Motor).
-
-    This class encapsulates all direct database access for tasks and should be
-    used by a separate service layer or FastAPI dependencies.
     """
 
     def __init__(self, db: AsyncIOMotorDatabase, collection_name: str = "tasks") -> None:

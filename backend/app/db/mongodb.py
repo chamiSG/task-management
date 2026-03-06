@@ -9,7 +9,6 @@ from app.config import Settings
 class MongoDBConnectionManager:
     """
     Manages MongoDB connection lifecycle with connection pooling.
-    Motor uses connection pooling by default; pool size is configured via settings.
     """
 
     def __init__(self, settings: Settings) -> None:

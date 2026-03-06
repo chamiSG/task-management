@@ -70,8 +70,6 @@ def authenticate_demo_user(username: str, password: str, settings: Settings) -> 
     if username != settings.demo_username:
         return None
 
-    # For simplicity in this scaffold, store a plaintext demo password.
-    # In a real application, you should store only hashed passwords.
     demo_hashed = get_password_hash(settings.demo_password)
     if not verify_password(password, demo_hashed):
         return None
@@ -108,6 +106,5 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    # In this simple scaffold we just reconstruct the user from the token subject.
     return User(username=token_data.sub)
 

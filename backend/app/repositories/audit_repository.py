@@ -39,5 +39,5 @@ class AuditLogRepository:
             user_id=user_id,
             timestamp=timestamp or datetime.now(UTC),
         )
-        doc = entry.model_dump()  # Keep UUID and datetime for BSON
+        doc = entry.model_dump()
         await self._collection.insert_one(doc)

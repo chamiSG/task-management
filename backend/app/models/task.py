@@ -22,32 +22,16 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
-    """
-    Payload for creating a new task.
-
-    _id, created_at and updated_at are set by the persistence layer.
-    """
-
     pass
 
 
 class TaskUpdate(BaseModel):
-    """
-    Payload for partially updating an existing task.
-
-    All fields are optional; only provided values will be updated.
-    """
-
     title: Optional[str] = Field(default=None, min_length=1, max_length=200)
     description: Optional[str] = Field(default=None, max_length=2000)
     status: Optional[TaskStatus] = None
 
 
 class TaskResponse(BaseModel):
-    """
-    Representation of a task returned from the API.
-    """
-
     id: UUID = Field(alias="_id")
     title: str
     description: Optional[str] = None
@@ -67,10 +51,6 @@ class TaskResponse(BaseModel):
 
 
 class TaskListResponse(BaseModel):
-    """
-    Paginated list of tasks with total count.
-    """
-
     items: List[TaskResponse]
     total: int
     limit: int

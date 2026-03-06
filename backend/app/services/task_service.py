@@ -18,15 +18,8 @@ class InvalidStatusTransitionError(Exception):
 class TaskService:
     """
     Application service for task-related business logic.
-
-    This layer coordinates validation, status transitions, and repository usage.
-    It should contain no transport / HTTP-specific concerns.
     """
 
-    # Allowed status transitions for business rules:
-    # - todo -> in_progress
-    # - in_progress -> done
-    # Once a task is done, its status cannot change further.
     _ALLOWED_STATUS_TRANSITIONS: dict[TaskStatus, set[TaskStatus]] = {
         TaskStatus.TODO: {TaskStatus.IN_PROGRESS},
         TaskStatus.IN_PROGRESS: {TaskStatus.DONE},
@@ -40,7 +33,6 @@ class TaskService:
         """
         Apply business validation and create a new task.
         """
-        # Example place for additional domain validation (e.g., quotas per owner).
         return await self._repository.create_task(payload)
 
     async def get_task(self, task_id: UUID) -> TaskResponse:
@@ -76,18 +68,15 @@ class TaskService:
         """
         Update a task with business validation and status transition rules.
         """
-        # Load current state for validation.
         current = await self._repository.get_task_by_id(task_id)
         if current is None:
             raise TaskNotFoundError(f"Task with id {task_id} not found.")
 
-        # Enforce status transition rules when a new status is provided.
         if updates.status is not None:
             self._validate_status_transition(current.status, updates.status)
 
         updated = await self._repository.update_task(task_id, updates)
         if updated is None:
-            # The task may have been deleted between read and update.
             raise TaskNotFoundError(f"Task with id {task_id} not found.")
 
         return updated
