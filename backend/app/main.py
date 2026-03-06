@@ -14,6 +14,7 @@ from app.config import get_settings
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: startup and shutdown hooks."""
     from app.db.mongodb import MongoDBConnectionManager
+    from app.repositories import TaskRepository
 
     settings = get_settings()
     mongodb = MongoDBConnectionManager(settings)
@@ -22,6 +23,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         await mongodb.connect()
         app.state.mongodb_client = mongodb.client
         app.state.mongodb_db = mongodb.database
+
+        if app.state.mongodb_db is not None:
+            # Initialize indexes for the tasks collection to keep queries efficient.
+            task_repository = TaskRepository(app.state.mongodb_db)
+            await task_repository.init_indexes()
     else:
         app.state.mongodb_client = None
         app.state.mongodb_db = None

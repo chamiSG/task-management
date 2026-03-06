@@ -1,4 +1,10 @@
-from app.models.task import TaskCreate, TaskResponse, TaskStatus, TaskUpdate
+from app.models.task import (
+    TaskCreate,
+    TaskListResponse,
+    TaskResponse,
+    TaskStatus,
+    TaskUpdate,
+)
 
-__all__ = ["TaskStatus", "TaskCreate", "TaskUpdate", "TaskResponse"]
+__all__ = ["TaskStatus", "TaskCreate", "TaskUpdate", "TaskResponse", "TaskListResponse"]
 

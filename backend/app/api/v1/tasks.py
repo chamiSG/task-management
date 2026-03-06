@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.dependencies import DatabaseDep
-from app.models import TaskCreate, TaskResponse, TaskStatus, TaskUpdate
+from app.models import TaskCreate, TaskListResponse, TaskResponse, TaskStatus, TaskUpdate
 from app.repositories import TaskRepository
 from app.services import (
     InvalidStatusTransitionError,
@@ -20,7 +20,7 @@ from app.services import (
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
-def get_task_service(db: DatabaseDep = Depends()) -> TaskService:
+def get_task_service(db: DatabaseDep) -> TaskService:
     """
     FastAPI dependency that wires the MongoDB database into the task service.
     """
@@ -59,7 +59,7 @@ async def create_task(
 
 @router.get(
     "",
-    response_model=List[TaskResponse],
+    response_model=TaskListResponse,
     summary="List tasks",
 )
 async def list_tasks(
@@ -68,7 +68,7 @@ async def list_tasks(
     limit: int = 50,
     skip: int = 0,
     service: TaskService = Depends(get_task_service),
-) -> List[TaskResponse]:
+) -> TaskListResponse:
     """
     List tasks with optional filters for owner and status.
     """

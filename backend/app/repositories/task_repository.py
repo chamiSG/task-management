@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from uuid import UUID, uuid4
 
 from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
-from pymongo import ReturnDocument
+from pymongo import ASCENDING, DESCENDING, IndexModel, ReturnDocument
 
 from app.models import TaskCreate, TaskResponse, TaskStatus, TaskUpdate
 
@@ -21,6 +21,20 @@ class TaskRepository:
     def __init__(self, db: AsyncIOMotorDatabase, collection_name: str = "tasks") -> None:
         self._db: AsyncIOMotorDatabase = db
         self._collection: AsyncIOMotorCollection = db[collection_name]
+
+    async def init_indexes(self) -> None:
+        """
+        Create indexes to optimize common query patterns.
+        """
+        await self._collection.create_indexes(
+            [
+                IndexModel([("owner_id", ASCENDING)]),
+                IndexModel([("status", ASCENDING)]),
+                IndexModel(
+                    [("owner_id", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)]
+                ),
+            ]
+        )
 
     async def create_task(self, payload: TaskCreate) -> TaskResponse:
         """
@@ -56,15 +70,18 @@ class TaskRepository:
         status: Optional[TaskStatus] = None,
         limit: int = 50,
         skip: int = 0,
-    ) -> List[TaskResponse]:
+    ) -> Tuple[List[TaskResponse], int]:
         """
-        List tasks with optional filtering by owner and status.
+        List tasks with optional filtering by owner and status, returning
+        both the items and the total count for the query.
         """
         query: dict = {}
         if owner_id is not None:
             query["owner_id"] = owner_id
         if status is not None:
             query["status"] = status
+
+        total = await self._collection.count_documents(query)
 
         cursor = (
             self._collection.find(query)
@@ -76,7 +93,7 @@ class TaskRepository:
         results: List[TaskResponse] = []
         async for doc in cursor:
             results.append(TaskResponse(**doc))
-        return results
+        return results, total
 
     async def update_task(self, task_id: UUID, updates: TaskUpdate) -> Optional[TaskResponse]:
         """

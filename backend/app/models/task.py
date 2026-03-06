@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -48,7 +48,7 @@ class TaskResponse(BaseModel):
     Representation of a task returned from the API.
     """
 
-    _id: UUID = Field(alias="_id")
+    id: UUID = Field(alias="_id")
     title: str
     description: Optional[str] = None
     status: TaskStatus
@@ -65,3 +65,13 @@ class TaskResponse(BaseModel):
     class Config:
         populate_by_name = True
 
+
+class TaskListResponse(BaseModel):
+    """
+    Paginated list of tasks with total count.
+    """
+
+    items: List[TaskResponse]
+    total: int
+    limit: int
+    skip: int

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 from uuid import UUID
 
-from app.models import TaskCreate, TaskResponse, TaskStatus, TaskUpdate
+from app.models import TaskCreate, TaskListResponse, TaskResponse, TaskStatus, TaskUpdate
 from app.repositories import TaskRepository
 
 
@@ -56,16 +56,18 @@ class TaskService:
         status: Optional[TaskStatus] = None,
         limit: int = 50,
         skip: int = 0,
-    ) -> List[TaskResponse]:
+    ) -> TaskListResponse:
         """
-        List tasks with optional filters.
+        List tasks with optional filters, returning a paginated response with
+        total count.
         """
-        return await self._repository.list_tasks(
+        items, total = await self._repository.list_tasks(
             owner_id=owner_id,
             status=status,
             limit=limit,
             skip=skip,
         )
+        return TaskListResponse(items=items, total=total, limit=limit, skip=skip)
 
     async def update_task(self, task_id: UUID, updates: TaskUpdate) -> TaskResponse:
         """
