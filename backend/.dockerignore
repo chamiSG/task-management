@@ -1,0 +1,16 @@
+# Virtual env and caches
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.coverage
+htmlcov
+
+# Git and IDE
+.git
+.gitignore
+.env
+.env.local
+*.md
