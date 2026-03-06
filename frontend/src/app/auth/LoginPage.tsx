@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { Button, Card, Form, Input, message } from 'antd'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/app/auth'
-import { login } from './api'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from './AuthContext'
+import { login } from '@/features/auth/api'
 import { ROUTES } from '@/lib/constants'
 
 export function LoginPage() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
   const { login: setAuth } = useAuth()
+
+  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? ROUTES.TASKS
 
   const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true)
@@ -16,7 +19,7 @@ export function LoginPage() {
       const res = await login({ username: values.username, password: values.password })
       setAuth(res.access_token, values.username)
       message.success('Logged in')
-      navigate(ROUTES.TASKS, { replace: true })
+      navigate(from, { replace: true })
     } catch (e) {
       message.error(e instanceof Error ? e.message : 'Login failed')
     } finally {

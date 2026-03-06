@@ -1,9 +1,10 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { ROUTES } from '@/lib/constants'
-import { AppLayout } from '@/components/layout'
-import { HomePage } from '@/features/home'
-import { LoginPage } from '@/features/auth'
+import { AppLayout } from '@/components/layout/AppLayout'
+import { HomePage } from '@/features/home/HomePage'
+import { LoginPage } from '@/app/auth/LoginPage'
 import { TasksPage } from '@/features/tasks/TasksPage'
+import { AuthGuard } from '@/app/auth/AuthGuard'
 
 const router = createBrowserRouter([
   {
@@ -12,7 +13,10 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'login', element: <LoginPage /> },
-      { path: 'tasks', element: <TasksPage /> },
+      {
+        element: <AuthGuard />,
+        children: [{ path: 'tasks', element: <TasksPage /> }],
+      },
     ],
   },
   { path: '*', element: <Navigate to={ROUTES.HOME} replace /> },

@@ -2,7 +2,7 @@ import { Layout, Menu } from 'antd'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { HomeOutlined, LoginOutlined, LogoutOutlined, UnorderedListOutlined } from '@ant-design/icons'
 import { ROUTES } from '@/lib/constants'
-import { useAuth } from '@/app/auth'
+import { useAuth } from '@/app/auth/AuthContext'
 
 const { Header, Content } = Layout
 
