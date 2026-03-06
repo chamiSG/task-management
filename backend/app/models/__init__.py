@@ -5,6 +5,14 @@ from app.models.task import (
     TaskStatus,
     TaskUpdate,
 )
+from app.models.audit import AuditLogEntry
 
-__all__ = ["TaskStatus", "TaskCreate", "TaskUpdate", "TaskResponse", "TaskListResponse"]
+__all__ = [
+    "TaskStatus",
+    "TaskCreate",
+    "TaskUpdate",
+    "TaskResponse",
+    "TaskListResponse",
+    "AuditLogEntry",
+]
 

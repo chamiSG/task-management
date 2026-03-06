@@ -5,11 +5,12 @@ from __future__ import annotations
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.dependencies import CurrentUserDep, DatabaseDep
 from app.models import TaskCreate, TaskListResponse, TaskResponse, TaskStatus, TaskUpdate
-from app.repositories import TaskRepository
+from app.repositories import AuditLogRepository, TaskRepository
 from app.services import (
     InvalidStatusTransitionError,
     TaskNotFoundError,
@@ -34,6 +35,26 @@ def get_task_service(db: DatabaseDep) -> TaskService:
     return TaskService(repository)
 
 
+async def write_audit_log(
+    db: AsyncIOMotorDatabase | None,
+    action: str,
+    task_id: UUID,
+    user_id: str,
+) -> None:
+    """
+    Background task: write an audit log entry for a task action.
+    No-op if database is not configured.
+    """
+    if db is None:
+        return
+    repo = AuditLogRepository(db)
+    await repo.insert_entry(
+        action=action,
+        task_id=task_id,
+        user_id=user_id,
+    )
+
+
 @router.post(
     "",
     response_model=TaskResponse,
@@ -42,14 +63,24 @@ def get_task_service(db: DatabaseDep) -> TaskService:
 )
 async def create_task(
     payload: TaskCreate,
+    background_tasks: BackgroundTasks,
     current_user: CurrentUserDep,
+    db: DatabaseDep,
     service: TaskService = Depends(get_task_service),
 ) -> TaskResponse:
     """
     Create a new task.
     """
     try:
-        return await service.create_task(payload)
+        task = await service.create_task(payload)
+        background_tasks.add_task(
+            write_audit_log,
+            db,
+            "created",
+            task.id,
+            current_user.username,
+        )
+        return task
     except InvalidStatusTransitionError as exc:
         # Unlikely during creation but kept for consistency.
         raise HTTPException(
@@ -110,14 +141,24 @@ async def get_task(
 async def update_task(
     task_id: UUID,
     payload: TaskUpdate,
+    background_tasks: BackgroundTasks,
     current_user: CurrentUserDep,
+    db: DatabaseDep,
     service: TaskService = Depends(get_task_service),
 ) -> TaskResponse:
     """
     Update a task. Only provided fields will be modified.
     """
     try:
-        return await service.update_task(task_id, payload)
+        task = await service.update_task(task_id, payload)
+        background_tasks.add_task(
+            write_audit_log,
+            db,
+            "updated",
+            task_id,
+            current_user.username,
+        )
+        return task
     except TaskNotFoundError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
